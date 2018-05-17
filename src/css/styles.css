@@ -1,0 +1,45 @@
+@import url('theme.css');
+.point {
+    position: relative;
+    float: left;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #000000;
+    margin-left: 100px;
+    margin-bottom: 50px;
+    cursor: pointer;
+}
+
+.point:nth-of-type(2n+1) {
+    margin-left: 0;
+}
+
+.point__dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 5px;
+    height: 5px;
+    border: 1px solid #000000;
+    border-radius: 3px;
+    background-color: #000000;
+}
+
+.point,
+.point__dot {
+    transition: border, box-shadow 1s;
+}
+
+.point_selected {
+    border-color: green;
+}
+
+.point.point_selected {
+    border-color: green;
+    box-shadow: 0px 3px 51.3px 2.7px green
+}
+
+.point__dot.point_selected {
+    background-color: green;
+}
