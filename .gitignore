@@ -2,3 +2,4 @@ node_modules/
 resources/
 package-lock.json
 build/
+graph_access_key/
