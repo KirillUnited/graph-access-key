@@ -2,7 +2,10 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     browserSync = require('browser-sync').create(),
-    del = require('del');
+    del = require('del'),
+    path = require('path');
+
+var dir = path.parse(path.dirname(__filename)).name;
 
 gulp.task('browser-sync', ['styles'], function () {
     browserSync.init({
@@ -15,7 +18,9 @@ gulp.task('browser-sync', ['styles'], function () {
 
 gulp.task('styles', function () {
     return gulp.src('src/sass/*.sass')
-        .pipe(sass({outputStyle: 'expanded'}))
+        .pipe(sass({
+            outputStyle: 'expanded'
+        }))
         .pipe(autoprefixer({
             browsers: ['last 15 versions'],
             cascade: false
@@ -25,33 +30,12 @@ gulp.task('styles', function () {
 });
 
 gulp.task('clean', function () {
-    return del.sync('build'); // Удаляем папку перед сборкой
+    return del.sync(dir); // Удаляем папку перед сборкой
 });
 
 gulp.task('build', function () {
-    var buildHtml = gulp.src(['!src/aktsii/index.html', 'src/aktsii/*'])
-        .pipe(gulp.dest('build/aktsii'));
-
-    var buildCss = gulp.src('src/css/*')
-        .pipe(gulp.dest('build/css'));
-
-    var buildJs = gulp.src('src/js/*')
-        .pipe(gulp.dest('build/js'));
-
-    var buildLibs = gulp.src('src/libs/**/*')
-        .pipe(gulp.dest('build/libs'));
-
-    var buildImages = gulp.src('src/images/**/*')
-        .pipe(gulp.dest('build/images'));
-
-    var buildImg = gulp.src('src/img/**/*')
-        .pipe(gulp.dest('build/img'));
-
-    var buildBitrix = gulp.src('src/bitrix/**/*')
-        .pipe(gulp.dest('build/bitrix'));
-
-    var buildFiles = gulp.src('src/upload/**/*')
-        .pipe(gulp.dest('build/upload'));
+    var build = gulp.src(['!src/sass/**/*', '!src/sass', 'src/**/*'])
+        .pipe(gulp.dest(dir));
 });
 
 gulp.task('watch', ['browser-sync'], function () {
