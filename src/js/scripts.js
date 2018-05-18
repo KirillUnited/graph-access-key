@@ -91,7 +91,11 @@ document.onmousedown = function (e) {
         }
         dragObject = {};
         console.log(pointChecked);
-        verification(e);
+        if (localStorage.getItem('password') == null || localStorage.getItem('password') == undefined) {
+            createKey(e);
+        } else {
+            verification(e);
+        }
     };
 
     function back(e) {
@@ -136,16 +140,15 @@ document.onmousedown = function (e) {
 function createKey(e) {
     var serialPC = JSON.stringify(pointChecked);
     localStorage.setItem('password', serialPC);
+    pwdReport(e);
+    reset(e);
+    abort(e)
 };
 
 function verification(e) {
     var returnPC = JSON.parse(localStorage.getItem('password'));
     var a = pointChecked;
     var b = returnPC;
-    var FAIL = 'FAILED';
-    var ACCESS = 'ACCESS';
-    var div = document.createElement('div');
-    var wrapper = document.querySelector('.wrapper');
     if (a.length === b.length) {
         var count = 0;
         for (let i = 0; i < b.length; i++) {
@@ -154,31 +157,52 @@ function verification(e) {
             }
         }
         if (count == b.length) {
-            console.log(ACCESS);
-            div.classList.add('report_submit', 'report');
-            div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
-            document.body.appendChild(div);
-            wrapper.classList.add('key-check-wrap_blur');
+            accessReport(e)
             reset(e);
             enter(e);
         } else {
-            console.log(FAIL);
-            div.classList.add('report_fail', 'report');
-            div.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
-            document.body.appendChild(div);
-            wrapper.classList.add('key-check-wrap_blur');
+            failReport(e)
             reset(e);
             abort(e);
         }
     } else {
-        console.log(FAIL);
-        div.classList.add('report_fail', 'report');
-        div.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
-        document.body.appendChild(div);
-        wrapper.classList.add('key-check-wrap_blur');
+        failReport(e)
         reset(e);
         abort(e);
     }
+}
+
+function pwdReport(e) {
+    var div = document.createElement('div');
+    var wrapper = document.querySelector('.wrapper');
+    var ACCESS = 'PASSWORD SAVE';
+    div.classList.add('report_submit', 'report');
+    div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
+    document.body.appendChild(div);
+    wrapper.classList.add('key-check-wrap_blur');
+    console.log(ACCESS);
+}
+
+function accessReport(e) {
+    var div = document.createElement('div');
+    var wrapper = document.querySelector('.wrapper');
+    var ACCESS = 'ACCESS';
+    div.classList.add('report_submit', 'report');
+    div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
+    document.body.appendChild(div);
+    wrapper.classList.add('key-check-wrap_blur');
+    console.log(ACCESS);
+}
+
+function failReport(e) {
+    var div = document.createElement('div');
+    var wrapper = document.querySelector('.wrapper');
+    var FAIL = 'FAILED';
+    div.classList.add('report_fail', 'report');
+    div.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
+    document.body.appendChild(div);
+    wrapper.classList.add('key-check-wrap_blur');
+    console.log(FAIL);
 }
 
 function reset(e) {

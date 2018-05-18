@@ -5,7 +5,7 @@ var gulp = require('gulp'),
     del = require('del'),
     path = require('path');
 
-var dir = path.parse(path.dirname(__filename)).name;
+var dir = 'build/' + path.parse(path.dirname(__filename)).name;
 
 gulp.task('browser-sync', ['styles'], function () {
     browserSync.init({
