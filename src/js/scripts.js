@@ -3,6 +3,15 @@ var point, dot;
 var dragObject = {};
 var opt = {};
 document.onmousedown = function (e) {
+    // Для браузеров не поддерживающих Element.closest(), но позволяющих использовать element.matches() (или префиксный эквивалент)
+    e.target.matches = e.target.matches || e.target.mozMatchesSelector || e.target.msMatchesSelector || e.target.oMatchesSelector || e.target.webkitMatchesSelector;
+    e.target.closest = e.target.closest || function closest(selector) {
+        if (!this) return null;
+        if (this.matches(selector)) return this;
+        if (!this.parentElement) {
+            return null
+        } else return this.parentElement.closest(selector)
+    };
     var point = e.target.closest('.point');
     if (!point) {
         return;
@@ -18,8 +27,8 @@ document.onmousedown = function (e) {
     // запомнить переносимый объект
     dragObject.elem = dot;
     dragObject.parentId = id;
-    opt.width = dot.clientWidth + 'px';
-    opt.height = dot.clientHeigth + 'px';
+    opt.width = dot.clientWidth;
+    opt.height = dot.clientHeigth;
     // запомнить координаты, с которых начат перенос объекта
     dragObject.downX = e.pageX;
     dragObject.downY = e.pageY;
@@ -34,9 +43,7 @@ document.onmousedown = function (e) {
         }
         var move = Math.pow(moveX, 2) + Math.pow(moveY, 2);
         var move = Math.sqrt(move);
-        var length = 5;
-        var length = length + move;
-        var length = Math.abs(length);
+        var length = Math.abs(opt.width + move);
         dragObject.elem.style.width = length + 'px';
         dragObject.elem.style.transformOrigin = 'left';
         var p1 = {
@@ -50,15 +57,13 @@ document.onmousedown = function (e) {
         var angleDeg = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
         dragObject.elem.style.transform = 'rotate(' + angleDeg + 'deg)';
     };
-    console.log(dragObject);
     document.onmouseover = function (e) {
         var dropElem = findDroppable(e);
         if (dropElem) {
             var newCoords = getCoords(dropElem.children[0]);
             var newLengthX = newCoords.left - dragObject.shiftX;
             var newLengthY = newCoords.top - dragObject.shiftY;
-            var newLength = Math.pow(newLengthX, 2) + Math.pow(newLengthY, 2);
-            var newLength = Math.sqrt(newLength);
+            var newLength = Math.sqrt(Math.pow(newLengthX, 2) + Math.pow(newLengthY, 2));
             var p1 = {
                 x: 0,
                 y: 0
@@ -90,11 +95,20 @@ document.onmousedown = function (e) {
             back(e);
         }
         dragObject = {};
-        console.log(pointChecked);
-        if (localStorage.getItem('password') == null || localStorage.getItem('password') == undefined) {
-            createKey(e);
+        // Check browser support localStorage
+        if (localStorage !== undefined) {
+            if (localStorage.getItem('password') == null || localStorage.getItem('password') == undefined) {
+                if (pointChecked.length > 3) {
+                    createKey(e);
+                } else {
+                    validPwd(e);
+                }
+            } else {
+                verification(e);
+            }
         } else {
-            verification(e);
+            var FAIL = 'Sorry, your browser does not support Local Storage...<br>see https://caniuse.com/#search=localStorage';
+            document.body.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
         }
     };
 
@@ -119,6 +133,16 @@ document.onmousedown = function (e) {
         if (el.classList.contains('point_selected')) {
             return null;
         }
+        (function (el) {
+            el.matches = el.matches || el.mozMatchesSelector || el.msMatchesSelector || el.oMatchesSelector || el.webkitMatchesSelector;
+            el.closest = el.closest || function closest(selector) {
+                if (!this) return null;
+                if (this.matches(selector)) return this;
+                if (!this.parentElement) {
+                    return null
+                } else return this.parentElement.closest(selector)
+            };
+        }(Element.prototype));
         return el.closest('.point');
 
     };
@@ -137,6 +161,18 @@ document.onmousedown = function (e) {
     };
 };
 
+function validPwd(e) {
+    var form = document.querySelector('.popup_access');
+    var div = document.createElement('div');
+    div.classList.add('valid-pwd');
+    div.innerHTML = '<p>minimum 4 points</p>';
+    form.appendChild(div);
+    reset(e);
+    var t = setTimeout(function (e) {
+        div.remove();
+    }, 2000);
+}
+
 function createKey(e) {
     var serialPC = JSON.stringify(pointChecked);
     localStorage.setItem('password', serialPC);
@@ -151,7 +187,7 @@ function verification(e) {
     var b = returnPC;
     if (a.length === b.length) {
         var count = 0;
-        for (let i = 0; i < b.length; i++) {
+        for (var i = 0; i < b.length; i++) {
             if (a[i] == b[i]) {
                 count++;
             }
@@ -175,12 +211,11 @@ function verification(e) {
 function pwdReport(e) {
     var div = document.createElement('div');
     var wrapper = document.querySelector('.wrapper');
-    var ACCESS = 'PASSWORD SAVE';
+    var ACCESS = 'PASSWORD SAVED';
     div.classList.add('report_submit', 'report');
     div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
     document.body.appendChild(div);
     wrapper.classList.add('key-check-wrap_blur');
-    console.log(ACCESS);
 }
 
 function accessReport(e) {
@@ -191,7 +226,6 @@ function accessReport(e) {
     div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
     document.body.appendChild(div);
     wrapper.classList.add('key-check-wrap_blur');
-    console.log(ACCESS);
 }
 
 function failReport(e) {
@@ -202,7 +236,6 @@ function failReport(e) {
     div.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
     document.body.appendChild(div);
     wrapper.classList.add('key-check-wrap_blur');
-    console.log(FAIL);
 }
 
 function reset(e) {
@@ -212,8 +245,8 @@ function reset(e) {
         var dot = point[i].children[0];
         point[i].classList.remove('point_selected');
         dot.classList.remove('point_selected');
-        dot.style.width = opt.width;
-        dot.style.heigth = opt.height;
+        dot.style.width = opt.width + 'px';
+        dot.style.heigth = opt.height + 'px';
         dot.style.transform = 'translate(-50%, -50%)';
     }
 }
@@ -222,10 +255,11 @@ function enter(e) {
     var wrapper = document.querySelector('.wrapper');
     var keyForm = wrapper.children[0];
     var report = document.querySelector('.report');
+    var txt = report.children[0];
     var end = setTimeout(function (e) {
         keyForm.remove();
-        report.style.opacity = '0';
-        report.style.top = '0';
+        txt.style.opacity = '0';
+        txt.style.top = '0';
         wrapper.classList.remove('key-check-wrap_blur');
         var after = setInterval(function (e) {
             wrapper.classList.add('wrapper_bg');
@@ -237,9 +271,10 @@ function enter(e) {
 function abort(e) {
     var wrapper = document.querySelector('.wrapper');
     var report = document.querySelector('.report');
+    var txt = report.children[0];
     var end = setTimeout(function (e) {
-        report.style.opacity = '0';
-        report.style.top = '0';
+        txt.style.opacity = '0';
+        txt.style.top = '0';
         wrapper.classList.remove('key-check-wrap_blur');
         var after = setInterval(function (e) {
             report.remove();

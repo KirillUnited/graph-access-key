@@ -38,16 +38,25 @@ body {
 
 .report {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.report p {
+  position: relative;
   top: 50%;
   left: 50%;
   -webkit-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
-  text-align: center;
   opacity: 1;
   -webkit-transition: all 3s;
   -o-transition: all 3s;
   transition: all 3s;
+  margin: 0;
 }
 
 .report_fail {
@@ -60,6 +69,14 @@ body {
   color: #008500;
   font-size: 36px;
   text-shadow: 0 0 1px #000000;
+}
+
+.valid-pwd {
+  text-align: center;
+}
+
+.valid-pwd p {
+  color: #A60000;
 }
 
 .point__dot {
