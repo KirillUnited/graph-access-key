@@ -1,0 +1,11 @@
+{
+    "liveServer.settings.multiRootWorkspaceName": "graph_access_key",
+    "liveSassCompile.settings.generateMap": false,
+    "liveSassCompile.settings.formats": [
+        {
+            "format": "expanded",
+            "extensionName": ".css",
+            "savePath": "/build/graph_access_key/css/"
+        }
+    ]
+}

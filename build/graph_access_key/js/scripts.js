@@ -95,6 +95,8 @@ document.onmousedown = function (e) {
             back(e);
         }
         dragObject = {};
+        
+       
         // Check browser support localStorage
         if (localStorage !== undefined) {
             if (localStorage.getItem('password') == null || localStorage.getItem('password') == undefined) {
@@ -107,9 +109,10 @@ document.onmousedown = function (e) {
                 verification(e);
             }
         } else {
-            var FAIL = 'Sorry...';
+            var FAIL = 'Sorry...<br>see https://caniuse.com/#search=localStorage';
             document.body.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
-        }
+        } 
+        verification(e);
     };
 
     function back(e) {
@@ -169,7 +172,7 @@ function validPwd(e) {
     form.appendChild(div);
     reset(e);
     var t = setTimeout(function (e) {
-        div.remove();
+        div.parentNode.removeChild(div);
     }, 2000);
 }
 
@@ -183,6 +186,7 @@ function createKey(e) {
 
 function verification(e) {
     var returnPC = JSON.parse(localStorage.getItem('password'));
+    // var returnPC = pointChecked; //CHANGE
     var a = pointChecked;
     var b = returnPC;
     if (a.length === b.length) {
@@ -193,55 +197,46 @@ function verification(e) {
             }
         }
         if (count == b.length) {
-            accessReport(e);
+            accessReport(e)
             reset(e);
             enter(e);
         } else {
-            failReport(e);
+            failReport(e)
             reset(e);
             abort(e);
         }
     } else {
-        failReport(e);
+        failReport(e)
         reset(e);
         abort(e);
     }
 }
 
 function pwdReport(e) {
-    var div = document.createElement('div');
-    var wrapper = document.querySelector('.wrapper');
-    var ACCESS = 'PASSWORD SAVED';
-    div.classList.add('report_submit', 'report');
-    div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
-    document.body.appendChild(div);
-    wrapper.classList.add('key-check-wrap_blur');
+    var div = document.querySelector('.report');
+    div.style.display = 'block';
+    div.classList.add('report_submit');
+    div.innerHTML = '<p>!!!message!!!</p>';
 }
 
 function accessReport(e) {
-    var div = document.createElement('div');
-    var wrapper = document.querySelector('.wrapper');
-    var ACCESS = 'ACCESS';
-    div.classList.add('report_submit', 'report');
-    div.innerHTML = '<p>!!!' + ACCESS + '!!!</p>';
-    document.body.appendChild(div);
-    wrapper.classList.add('key-check-wrap_blur');
+    var div = document.querySelector('.report');
+    div.style.display = 'block';
+    div.classList.add('report_submit');
+    div.innerHTML = '<p>!!!message!!!</p>';
 }
 
 function failReport(e) {
-    var div = document.createElement('div');
-    var wrapper = document.querySelector('.wrapper');
-    var FAIL = 'FAILED';
-    div.classList.add('report_fail', 'report');
-    div.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
-    document.body.appendChild(div);
-    wrapper.classList.add('key-check-wrap_blur');
+    var div = document.querySelector('.report');
+    div.style.display = 'block';
+    div.classList.add('report_fail');
+    div.innerHTML = '<p>!!!message!!!</p>';
 }
 
 function reset(e) {
     pointChecked = [];
     var point = document.querySelectorAll('.point');
-    for (let i = 0; i < point.length; i++) {
+    for (var i = 0; i < point.length; i++) {
         var dot = point[i].children[0];
         point[i].classList.remove('point_selected');
         dot.classList.remove('point_selected');
@@ -253,14 +248,14 @@ function reset(e) {
 
 function enter(e) {
     var wrapper = document.querySelector('.wrapper');
-    var keyForm = wrapper.children[0];
+    var keyForm = document.querySelector('#access');
     var report = document.querySelector('.report');
-    var txt = report.children[0];
+    var txt = report.firstChild;
+    
     var end = setTimeout(function (e) {
-        keyForm.remove();
+        keyForm.parentNode.removeChild(keyForm); //fix el.remove() 
         txt.style.opacity = '0';
         txt.style.top = '0';
-        wrapper.classList.remove('key-check-wrap_blur');
         var after = setInterval(function (e) {
             wrapper.classList.add('wrapper_bg');
             wrapper.style.opacity = '1';
@@ -271,13 +266,30 @@ function enter(e) {
 function abort(e) {
     var wrapper = document.querySelector('.wrapper');
     var report = document.querySelector('.report');
-    var txt = report.children[0];
+    var txt = report.firstChild;
     var end = setTimeout(function (e) {
         txt.style.opacity = '0';
         txt.style.top = '0';
-        wrapper.classList.remove('key-check-wrap_blur');
         var after = setInterval(function (e) {
-            report.remove();
+            report.classList.remove('report_fail');
         }, 2000);
     }, 2000);
 }
+
+(function(constructor) {
+    if (constructor &&
+        constructor.prototype &&
+        constructor.prototype.children == null) {
+        Object.defineProperty(constructor.prototype, 'children', {
+            get: function() {
+                var i = 0, node, nodes = this.childNodes, children = [];
+                while (node = nodes[i++]) {
+                    if (node.nodeType === 1) {
+                        children.push(node);
+                    }
+                }
+                return children;
+            }
+        });
+    }
+})(window.Node || window.Element);
