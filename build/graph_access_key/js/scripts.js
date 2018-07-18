@@ -112,7 +112,7 @@ document.onmousedown = function (e) {
             var FAIL = 'Sorry...<br>see https://caniuse.com/#search=localStorage';
             document.body.innerHTML = '<p>!!!' + FAIL + '!!!</p>';
         } 
-        verification(e);
+        // verification(e);
     };
 
     function back(e) {
